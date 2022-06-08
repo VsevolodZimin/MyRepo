@@ -15,12 +15,12 @@ public class JDBCLabelRepositoryImpl implements LabelRepository {
 
     public static final String ALL_QUERY = "SELECT * FROM label";
     public static final String BY_ID_QUERY = "SELECT * FROM label WHERE label_id = ?";
-    public static final String SAVE_QUERY = "INSERT ignore INTO label VALUES (?, ?)";
+    public static final String SAVE_QUERY = "INSERT IGNORE INTO label VALUES (?, ?)";
     public static final String UPDATE_QUERY = "UPDATE label SET name = ? WHERE label_id = ?";
     public static final String DELETE_QUERY = "DELETE FROM label WHERE label_id = ?";
-    public final String GET_LABELS_BY_POST = "SELECT * FROM label WHERE label_id IN (SELECT label_id FROM labeled_post WHERE post_id = ?)";
+    public final String GET_LABELS_BY_POST = "SELECT * FROM label WHERE label_id IN (SELECT label_id FROM post_label WHERE post_id = ?)";
     private final String ATTACH_LABELS_TO_POST = "INSERT IGNORE INTO labeled_post VALUES(?, ?)";
-    private final String DETACH_ALL_LABELS = "DELETE FROM labeled_post WHERE post_id = ?";
+    private final String DETACH_ALL_LABELS = "DELETE FROM post_label WHERE post_id = ?";
 
     public JDBCLabelRepositoryImpl() throws SQLException {
     }

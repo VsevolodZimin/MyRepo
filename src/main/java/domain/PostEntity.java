@@ -5,12 +5,13 @@ import java.util.List;
 
 public class PostEntity {
 
-    public PostEntity(Long id, String content, Date created, Date updated, List<LabelEntity> labels) {
+    public PostEntity(Long id, String content, Date created, Date updated, List<LabelEntity> labels, Long writerId) {
         this.content = content;
         this.created = created;
         this.updated = updated;
         this.labels = labels;
         this.id = id;
+        this.writerId = writerId;
     }
 
     public PostEntity(String content, Date created, Date updated, List<LabelEntity> labels) {
@@ -27,6 +28,7 @@ public class PostEntity {
     private Date updated;
     private List<LabelEntity> labels;
     private Long id;
+    private Long writerId;
 
 
     public long getId() {
@@ -48,6 +50,8 @@ public class PostEntity {
     public List<LabelEntity> getLabels() {
         return labels;
     }
+
+    public Long getWriterId(){return writerId;}
 
     @Override
     public String toString(){
