@@ -6,38 +6,31 @@ import java.util.List;
 
 public class WriterEntity {
 
+    private long id;
+    private String firstName;
+    private String lastName;
+
+
+    private List<PostEntity> posts;
+
+
     public WriterEntity(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.posts = new ArrayList<>();
-        this.id = (long) Math.abs(firstName.hashCode() + lastName.hashCode() + posts.hashCode() + Math.random());
+        this(null, firstName, lastName, null);
     }
 
 
     public WriterEntity(String firstName, String lastName, List<PostEntity> posts) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.posts = posts;
-        this.id = (long) Math.abs(firstName.hashCode() + lastName.hashCode() + posts.hashCode() + Math.random());
+        this(null, firstName, lastName, posts);
     }
 
-
-    public WriterEntity(Long id, String firstName, String lastName,  List<PostEntity> posts) {
+    public WriterEntity(Long id, String firstName, String lastName, List<PostEntity> posts) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.id = id;
         this.posts = posts;
     }
 
-    private long id;
-    private String firstName;
-    private String lastName;
-    private List<PostEntity> posts;
-
-
-    public long getId() {
-        return id;
-    }
+    public long getId() {return id; }
 
     public String getFirstName() {
         return firstName;
@@ -49,6 +42,10 @@ public class WriterEntity {
 
     public List<PostEntity> getPosts() {
         return posts;
+    }
+
+    public void setPosts(List<PostEntity> posts) {
+        this.posts = posts;
     }
 }
 

@@ -1,18 +1,20 @@
 package controller;
 
 import domain.WriterEntity;
-import service.WriterService.WriterService;
-import service.WriterService.WriterServiceImpl;
+import service.WriterService;
+import service.impl.WriterServiceImpl;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public class WriterController {
 
-    WriterService service = new WriterServiceImpl();
+    WriterService service;
 
-    public WriterController() throws SQLException {
+    public WriterController (WriterService service){
+        this.service = service;
     }
+
 
     public List<WriterEntity> findAll() throws SQLException {
         return service.findAll();
@@ -27,12 +29,12 @@ public class WriterController {
 
     }
 
-    public void deleteById(Long id) throws SQLException {
-        service.deleteById(id);
+    public void delete(WriterEntity writer) throws SQLException {
+        service.delete(writer);
 
     }
 
-    public void update(WriterEntity writer, Long id) throws SQLException {
-        service.update(writer, id);
+    public void update(WriterEntity writer) throws SQLException {
+        service.update(writer);
     }
 }

@@ -1,17 +1,18 @@
 package controller;
 
 import domain.LabelEntity;
-import service.LabelService.LabelService;
-import service.LabelService.impl.LabelServiceImpl;
+import service.LabelService;
+import service.impl.LabelServiceImpl;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public class LabelController {
 
-    private final LabelService service = new LabelServiceImpl();
+    private final LabelService service;
 
-    public LabelController() throws SQLException {
+    public LabelController(LabelService service) {
+        this.service = service;
     }
 
     public List<LabelEntity> findAll() throws SQLException {
@@ -26,23 +27,11 @@ public class LabelController {
         return service.save(label);
     }
 
-    public LabelEntity update(LabelEntity e, Long id) throws SQLException {
-        return service.update(e, id);
+    public LabelEntity update(LabelEntity label) throws SQLException {
+        return service.update(label);
     }
 
-    public void deleteById(Long id) throws SQLException {
-        service.deleteById(id);
-    }
-
-    List<LabelEntity> findAssociatedLabels(Long id) throws SQLException{
-       return service.findAssociatedLabels(id);
-    }
-
-    void attachLabelsToPost(List<LabelEntity> labels, Long postId) throws SQLException{
-        service.attachLabelsToPost(labels, postId);
-    }
-
-    void updateLabelsByPost(List<LabelEntity> labels, Long postId) throws SQLException{
-        service.updateLabelsByPost(labels, postId);
+    public void delete(LabelEntity label) throws SQLException {
+        service.delete(label);
     }
 }

@@ -2,9 +2,11 @@ package domain;
 
 public class LabelEntity {
 
+    private Long id;
+    private String name;
+
     public LabelEntity(String name){
-        this.name = name;
-        this.id = Math.abs((long) name.hashCode());
+        this(null, name);
     }
 
     public LabelEntity(Long id , String name){
@@ -19,9 +21,6 @@ public class LabelEntity {
     public String getName() {
         return name;
     }
-
-    private Long id;
-    private String name;
 
     @Override
     public String toString(){
