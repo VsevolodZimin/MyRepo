@@ -49,7 +49,6 @@ public class JDBCConnectionPool implements ConnectionPool {
                     connectionPool.add(dataSource.createConnection());
                     currentCapacity++;
                     connection = getConnection();
-                    usedConnections++;
                 }
             }
         }
