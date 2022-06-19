@@ -18,7 +18,7 @@ public interface PostService{
 
     List<PostEntity> findAssociatedPosts(WriterEntity writer) throws SQLException;
 
-    default void setWService(WriterService wService) {
+    default void setWriterService(WriterService wService) {
 
     }
 }

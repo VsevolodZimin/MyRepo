@@ -3,12 +3,8 @@ package repository.impl;
 import domain.WriterEntity;
 import repository.WriterRepository;
 import service.PostService;
-import service.impl.PostServiceImpl;
-import utils.JDBCUtil;
 import utils.connectionPool.DataSource;
-import utils.connectionPool.JDBCConnectionPool;
 
-import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

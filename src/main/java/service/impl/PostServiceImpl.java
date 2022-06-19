@@ -74,7 +74,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void setWService(WriterService wService) {
+    public void setWriterService(WriterService wService) {
         this.wService = wService;
     }
 }
