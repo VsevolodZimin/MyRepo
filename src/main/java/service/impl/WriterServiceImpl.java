@@ -15,7 +15,7 @@ public class WriterServiceImpl implements WriterService {
     private PostService pService;
 
 
-    public WriterServiceImpl(WriterRepository repository, PostService pService) throws SQLException {
+    public WriterServiceImpl(WriterRepository repository, PostService pService) {
         this.repository = repository;
         this.pService = pService;
     }
@@ -24,8 +24,8 @@ public class WriterServiceImpl implements WriterService {
     @Override
     public List<WriterEntity> findAll() throws SQLException {
         List<WriterEntity> writers = repository.findAll();
-        for (WriterEntity i : writers) {
-            i.setPosts(pService.findAssociatedPosts(i));
+        for (WriterEntity writer : writers) {
+            writer.setPosts(pService.findAssociatedPosts(writer));
         }
         return writers;
     }

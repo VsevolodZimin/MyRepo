@@ -18,6 +18,9 @@ public class WriterEntity {
         this(null, firstName, lastName, null);
     }
 
+    public WriterEntity(Long id, String firstName, String lastName){
+        this(id, firstName, lastName, null);
+    }
 
     public WriterEntity(String firstName, String lastName, List<PostEntity> posts) {
         this(null, firstName, lastName, posts);

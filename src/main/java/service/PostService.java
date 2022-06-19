@@ -17,4 +17,8 @@ public interface PostService{
     void delete(PostEntity post) throws SQLException;
 
     List<PostEntity> findAssociatedPosts(WriterEntity writer) throws SQLException;
+
+    default void setWService(WriterService wService) {
+
+    }
 }

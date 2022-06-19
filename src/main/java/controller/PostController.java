@@ -11,7 +11,7 @@ public class PostController {
 
     PostService service;
 
-    public PostController(PostService service) throws SQLException {
+    public PostController(PostService service) {
         this.service = service;
     }
 

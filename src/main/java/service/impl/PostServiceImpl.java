@@ -28,10 +28,8 @@ public class PostServiceImpl implements PostService {
     public List<PostEntity> findAll() throws SQLException {
         List<PostEntity> posts = repository.findAll();
 
-        for(PostEntity i : posts){
-            Long writerId = i.getWriterId();
-            i.setLabels(lService.findAssociatedLabels(i));
-            i.setWriterEntity(wService.findById(writerId));
+        for(PostEntity post : posts){
+            post.setLabels(lService.findAssociatedLabels(post));
         }
     return posts;
     }
@@ -40,17 +38,15 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostEntity findById(Long id) throws SQLException {
         PostEntity post = repository.findById(id);
-        Long writerId = post.getWriterId();
         post.setLabels(lService.findAssociatedLabels(post));
-        post.setWriterEntity(wService.findById(writerId));
     return post;
     }
 
 
-    public PostEntity save(PostEntity updatedPost) throws SQLException {
-        repository.save(updatedPost);
-        lService.attachNewLabelsToPost(updatedPost);
-        return updatedPost;
+    public PostEntity save(PostEntity newPost) throws SQLException {
+        repository.save(newPost);
+        lService.attachNewLabelsToPost(newPost);
+        return newPost;
     }
 
 
@@ -70,10 +66,14 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostEntity> findAssociatedPosts(WriterEntity writer) throws SQLException {
-        return repository.findAssociatedPostsByWriterId(writer.getId());
+        List<PostEntity> posts = repository.findAssociatedPostsByWriterId(writer.getId());
+        for (PostEntity i: posts){
+            i.setLabels(lService.findAssociatedLabels(i));
+        }
+    return posts;
     }
 
-
+    @Override
     public void setWService(WriterService wService) {
         this.wService = wService;
     }

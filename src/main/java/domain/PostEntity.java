@@ -2,7 +2,6 @@ package domain;
 
 import java.sql.Date;
 import java.util.List;
-import java.util.UUID;
 
 public class PostEntity {
 
@@ -10,22 +9,25 @@ public class PostEntity {
     private Date created;
     private Date updated;
     private String content;
-    //  private Long writerId;              //Было
-    private WriterEntity writerEntity;      //Стало
+    private Long writerId;
     private List<LabelEntity> labels;
 
 
-    public PostEntity(Long id, String content, Date created, Date updated, List<LabelEntity> labels, WriterEntity writer) {
+    public PostEntity(Long id, String content, Date created, Date updated, List<LabelEntity> labels, Long writerId) {
         this.content = content;
         this.created = created;
         this.updated = updated;
         this.labels = labels;
         this.id = id;
-        this.writerEntity = writer;
+        this.writerId = writerId;
     }
 
-    public PostEntity(String content, Date created, Date updated, List<LabelEntity> labels, WriterEntity writer) {
-        this(null, content, created, updated, labels, writer);
+    public PostEntity(String content, Date created, Date updated, List<LabelEntity> labels, Long writerId) {
+        this(null, content, created, updated, labels, writerId);
+    }
+
+    public PostEntity(Long id, String content, Date created, Date updated) {
+        this(id, content, created, updated, null, null);
     }
 
     public long getId() {
@@ -52,11 +54,13 @@ public class PostEntity {
         return labels;
     }
 
-    public void setWriterEntity(WriterEntity writerEntity) {
-        this.writerEntity = writerEntity;
+    public void setWriterId(Long writerId) {
+        this.writerId = writerId;
     }
 
-    public Long getWriterId(){return writerEntity.getId();}
+    public Long getWriterId(){
+        return writerId;
+    }
 
 
     @Override
