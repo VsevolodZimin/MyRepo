@@ -14,34 +14,29 @@ public class JDBCConnectionPool implements ConnectionPool {
     private static ConnectionPool connectionPoolContainer;
     private List<Connection> connectionPool;
     private DataSource dataSource;
-    private int defaultCapacity;
-    private int currentCapacity;
-    private int maxCapacity;
-    private int usedConnections;
+    private static int defaultCapacity = 100;
+    private static int currentCapacity = defaultCapacity;
+    private static int maxCapacity = 150;
+    private static int usedConnections = 0;
 
 
-    private JDBCConnectionPool(DataSource dataSource, List<Connection> pool, int poolCapacity, int maxCapacity) throws SQLException {
+    private JDBCConnectionPool(DataSource dataSource, List<Connection> pool) {
         this.dataSource = dataSource;
         this.connectionPool = pool;
-        this.defaultCapacity = poolCapacity;
-        this.currentCapacity = defaultCapacity;
-        this.maxCapacity = maxCapacity;
-        this.usedConnections = 0;
     }
 
-    @Override
-    public void createConnectionPoolContainer (DataSource dataSource, int poolCapacity, int maxConnection) throws SQLException {
+    public static void initialise(DataSource dataSource) throws SQLException {
         List<Connection> connections = new ArrayList<>();
         if (connectionPoolContainer == null) {
             for (int i = 0; i < defaultCapacity; i++) {
                 connections.add(dataSource.createConnection());
             }
-            connectionPoolContainer = new JDBCConnectionPool(dataSource, connections, poolCapacity, maxConnection);
+            connectionPoolContainer = new JDBCConnectionPool(dataSource, connections);
         }
     }
 
     @Override
-    public Connection getConnectionFromPool() throws SQLException {
+    public Connection getConnection() throws SQLException {
         Connection connection = null;
         try {
             if(connectionPool.size() > 0) {
@@ -53,7 +48,7 @@ public class JDBCConnectionPool implements ConnectionPool {
                 if(currentCapacity <= maxCapacity){
                     connectionPool.add(dataSource.createConnection());
                     currentCapacity++;
-                    connection = getConnectionFromPool();
+                    connection = getConnection();
                     usedConnections++;
                 }
             }
@@ -80,6 +75,10 @@ public class JDBCConnectionPool implements ConnectionPool {
                 connectionPool.remove(0);
             }
         }
+    }
+
+    public static ConnectionPool getPoolContainer() {
+        return connectionPoolContainer;
     }
 }
 

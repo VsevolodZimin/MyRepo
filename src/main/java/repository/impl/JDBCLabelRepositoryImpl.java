@@ -4,9 +4,8 @@ import domain.LabelEntity;
 import domain.PostEntity;
 import repository.LabelRepository;
 import utils.JDBCUtil;
-import utils.connectionPool.DataSource;
+import utils.connectionPool.impl.JDBCConnectionPool;
 
-import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,16 +27,17 @@ public class JDBCLabelRepositoryImpl implements LabelRepository {
     @Override
     public List<LabelEntity> findAll() throws SQLException {
         ArrayList<LabelEntity> labelEntities = new ArrayList<>();
-        PreparedStatement statement = DataSource.getConnection().prepareStatement(ALL_QUERY);
-        statement.execute();
-        ResultSet result = statement.getResultSet();
-        while (result.next()) {
-            labelEntities.add(new LabelEntity(
-                    result.getLong("id"),
-                    result.getString("name"))
-            );
+        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(ALL_QUERY)) {
+            statement.execute();
+            ResultSet result = statement.getResultSet();
+            while (result.next()) {
+                labelEntities.add(new LabelEntity(
+                        result.getLong("id"),
+                        result.getString("name"))
+                );
+            }
         }
-        DataSource.returnConnection(statement.getConnection());
+        JDBCConnectionPool.getPoolContainer().retrieveConnection();
         return labelEntities;
     }
 
@@ -45,65 +45,69 @@ public class JDBCLabelRepositoryImpl implements LabelRepository {
     @Override
     public LabelEntity findById(Long id) throws SQLException {
         LabelEntity label;
-        PreparedStatement statement = DataSource.getConnection().prepareStatement(BY_ID_QUERY);
-        statement.setLong(1, id);
-        statement.execute();
-        ResultSet result = statement.getResultSet();
-        if (result.next()) {
-            label = new LabelEntity(result.getLong("id"), result.getString("name"));
-            DataSource.returnConnection(statement.getConnection());
-            return label;
-        }
-        else {
-            DataSource.returnConnection(statement.getConnection());
-            return null;
+        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(BY_ID_QUERY)) {
+            statement.setLong(1, id);
+            statement.execute();
+            ResultSet result = statement.getResultSet();
+            if (result.next()) {
+                label = new LabelEntity(result.getLong("id"), result.getString("name"));
+                JDBCConnectionPool.getPoolContainer().retrieveConnection();
+                return label;
+            } else {
+                JDBCConnectionPool.getPoolContainer().retrieveConnection();
+                return null;
+            }
         }
     }
 
     @Override
     public LabelEntity save(LabelEntity labelEntity) throws SQLException{
-        PreparedStatement statement = DataSource.getConnection().prepareStatement(SAVE_QUERY);
-        statement.setString(1, labelEntity.getName());
-        statement.execute();
-        DataSource.returnConnection(statement.getConnection());
+        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(SAVE_QUERY)) {
+            statement.setString(1, labelEntity.getName());
+            statement.execute();
+        }
+        JDBCConnectionPool.getPoolContainer().retrieveConnection();
         return labelEntity;
     }
 
 
     @Override
     public LabelEntity update(LabelEntity label) throws SQLException {
-        PreparedStatement statement = DataSource.getConnection().prepareStatement(UPDATE_QUERY);
-        statement.setString(1, label.getName());
-        statement.setLong(2, label.getId());
-        statement.execute();
-        DataSource.returnConnection(statement.getConnection());
+        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(UPDATE_QUERY)) {
+            statement.setString(1, label.getName());
+            statement.setLong(2, label.getId());
+            statement.execute();
+        }
+        JDBCConnectionPool.getPoolContainer().retrieveConnection();
         return label;
     }
 
 
     @Override
     public void deleteById(Long id) throws SQLException {
-        PreparedStatement statement = DataSource.getConnection().prepareStatement(DELETE_QUERY);
-        statement.setLong(1, id);
-        statement.execute();
-        DataSource.returnConnection(statement.getConnection());
+        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(DELETE_QUERY)) {
+            statement.setLong(1, id);
+            statement.execute();
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
     //Достаёт из БД и сохраняет в List все тэги, относящиеся к данному посту:
     @Override
     public List<LabelEntity> findAssociatedLabels(Long id) throws SQLException {
         ArrayList<LabelEntity> labels = new ArrayList<>();
-        PreparedStatement statement = DataSource.getConnection().prepareStatement(GET_LABELS_BY_POST);
-        statement.setLong(1, id);
-        statement.execute();
-        ResultSet resultSet = statement.getResultSet();
-        while (resultSet.next()) {
-            labels.add(new LabelEntity(
-                    resultSet.getLong("id"),
-                    resultSet.getString("name"))
-            );
+        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(GET_LABELS_BY_POST)){
+            statement.setLong(1, id);
+            statement.execute();
+            ResultSet resultSet = statement.getResultSet();
+            while (resultSet.next()) {
+                labels.add(new LabelEntity(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name"))
+                );
+            }
         }
-        DataSource.returnConnection(statement.getConnection());
+        JDBCConnectionPool.getPoolContainer().retrieveConnection();
         return labels;
     }
 
@@ -111,32 +115,35 @@ public class JDBCLabelRepositoryImpl implements LabelRepository {
     //Сохраняет в связующую таблицу связь между Post и Label:
     @Override
     public List<LabelEntity> attachNewLabelsToPost(PostEntity newPost) throws SQLException {
-        PreparedStatement statement = DataSource.getConnection().prepareStatement(ATTACH_LABELS_TO_POST);
-        for(LabelEntity label : newPost.getLabels()){
-            statement.setLong(1, newPost.getId());
-            statement.setLong(2, label.getId());
-            statement.execute();
+        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(ATTACH_LABELS_TO_POST)){
+            for(LabelEntity label : newPost.getLabels()) {
+                statement.setLong(1, newPost.getId());
+                statement.setLong(2, label.getId());
+                statement.execute();
+            }
         }
-        DataSource.returnConnection(statement.getConnection());
+        JDBCConnectionPool.getPoolContainer().retrieveConnection();
         return newPost.getLabels();
     }
 
     @Override
     public void detachLabelsById(List<LabelEntity> labels, Long postId) throws SQLException {
-        PreparedStatement statement = DataSource.getConnection().prepareStatement(JDBCUtil.sqlQueryToDetachLabels(labels));
-        statement.setLong(1, postId);
-        for (int i = 2; i <= labels.size()+1; i++) {
-            statement.setLong(i, labels.get(i-2).getId());
+        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(JDBCUtil.sqlQueryToDetachLabels(labels))) {
+            statement.setLong(1, postId);
+            for (int i = 2; i <= labels.size() + 1; i++) {
+                statement.setLong(i, labels.get(i - 2).getId());
+            }
+            statement.execute();
         }
-        statement.execute();
-        DataSource.returnConnection(statement.getConnection());
+        JDBCConnectionPool.getPoolContainer().retrieveConnection();
     }
 
     public void detachAllLabels(Long postId) throws SQLException {
-        PreparedStatement statement = DataSource.getConnection().prepareStatement(DETACH_ALL_LABELS);
-        statement.setLong(1, postId);
-        statement.execute();
-        DataSource.returnConnection(statement.getConnection());
+        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(DETACH_ALL_LABELS)) {
+            statement.setLong(1, postId);
+            statement.execute();
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 }
 

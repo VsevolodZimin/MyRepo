@@ -25,9 +25,6 @@ public class DataSource {
     }
 
     public Connection createConnection() throws SQLException {
-        return DriverManager.getConnection(
-                properties.getProperty(url),
-                properties.getProperty(user),
-                properties.getProperty(password));
+        return DriverManager.getConnection(url, user, password);
     }
 }
