@@ -30,6 +30,10 @@ public class PostEntity {
         this(id, content, created, updated, null, null);
     }
 
+    public PostEntity(Long id, String content, Date created, Date updated, Long writerId) {
+        this(id, content, created, updated, null, writerId);
+    }
+
     public long getId() {
         return id;
     }

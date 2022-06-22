@@ -13,11 +13,6 @@ import java.util.List;
 
 public class JDBCWriterRepositoryImpl implements WriterRepository {
 
-    // 1. Контороллер - только знает о сервисе (сервис А, сервис Б ...)
-    // 2. Сервис - только знает о репозитори ()
-    // 3. Репозитори
-    // 4. БД
-
     private final String GET_ALL_WRITERS = "SELECT * FROM writer";
     private final String GET_WRITER_BY_ID = "SELECT * FROM writer WHERE id = ?";
     private final String UPDATE_WRITER = "UPDATE writer SET firstName = ?, lastName = ? WHERE id = ?";
@@ -36,9 +31,11 @@ public class JDBCWriterRepositoryImpl implements WriterRepository {
                         result.getString("firstName"),
                         result.getString("lastName")));
             }
+            return writers;
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-        return writers;
+        finally{
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
 
@@ -52,28 +49,30 @@ public class JDBCWriterRepositoryImpl implements WriterRepository {
                 WriterEntity writer = new WriterEntity(
                         result.getLong("id"),
                         result.getString("firstName"),
-                        result.getString("lastName"),
-                        null
+                        result.getString("lastName")
                 );
-                JDBCConnectionPool.getPoolContainer().retrieveConnection();
                 return writer;
             }
+            return null;
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-        return null;
+        finally {
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
 
     @Override
     public WriterEntity save(WriterEntity writer) throws SQLException {
-        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(SAVE_WRITER)) {
+        try (PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(SAVE_WRITER)) {
             statement.setLong(1, writer.getId());
             statement.setString(2, writer.getFirstName());
             statement.setString(3, writer.getLastName());
             statement.execute();
+            return writer;
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-        return writer;
+        finally {
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
 
@@ -84,8 +83,10 @@ public class JDBCWriterRepositoryImpl implements WriterRepository {
            statement.setString(2, writer.getLastName());
            statement.setLong(3, writer.getId());
            statement.execute();
-           JDBCConnectionPool.getPoolContainer().retrieveConnection();
            return writer;
+       }
+       finally{
+           JDBCConnectionPool.getPoolContainer().retrieveConnection();
        }
     }
 
@@ -96,6 +97,8 @@ public class JDBCWriterRepositoryImpl implements WriterRepository {
             statement.setLong(1, id);
             statement.execute();
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        finally {
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 }

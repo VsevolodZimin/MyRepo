@@ -36,9 +36,11 @@ public class JDBCLabelRepositoryImpl implements LabelRepository {
                         result.getString("name"))
                 );
             }
+            return labelEntities;
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-        return labelEntities;
+        finally{
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
 
@@ -51,35 +53,39 @@ public class JDBCLabelRepositoryImpl implements LabelRepository {
             ResultSet result = statement.getResultSet();
             if (result.next()) {
                 label = new LabelEntity(result.getLong("id"), result.getString("name"));
-                JDBCConnectionPool.getPoolContainer().retrieveConnection();
                 return label;
             } else {
-                JDBCConnectionPool.getPoolContainer().retrieveConnection();
                 return null;
             }
         }
+        finally{
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
     @Override
-    public LabelEntity save(LabelEntity labelEntity) throws SQLException{
-        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(SAVE_QUERY)) {
+    public LabelEntity save(LabelEntity labelEntity) throws SQLException {
+        try (PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(SAVE_QUERY)) {
             statement.setString(1, labelEntity.getName());
             statement.execute();
+            return labelEntity;
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-        return labelEntity;
+        finally {
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
-
 
     @Override
     public LabelEntity update(LabelEntity label) throws SQLException {
-        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(UPDATE_QUERY)) {
+        try (PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(UPDATE_QUERY)) {
             statement.setString(1, label.getName());
             statement.setLong(2, label.getId());
             statement.execute();
+            return label;
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-        return label;
+        finally {
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
 
@@ -88,6 +94,8 @@ public class JDBCLabelRepositoryImpl implements LabelRepository {
         try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(DELETE_QUERY)) {
             statement.setLong(1, id);
             statement.execute();
+        }
+        finally{
             JDBCConnectionPool.getPoolContainer().retrieveConnection();
         }
     }
@@ -106,24 +114,28 @@ public class JDBCLabelRepositoryImpl implements LabelRepository {
                         resultSet.getString("name"))
                 );
             }
+            return labels;
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-        return labels;
+        finally {
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
 
     //Сохраняет в связующую таблицу связь между Post и Label:
     @Override
     public List<LabelEntity> attachNewLabelsToPost(PostEntity newPost) throws SQLException {
-        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(ATTACH_LABELS_TO_POST)){
-            for(LabelEntity label : newPost.getLabels()) {
+        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(ATTACH_LABELS_TO_POST)) {
+            for (LabelEntity label : newPost.getLabels()) {
                 statement.setLong(1, newPost.getId());
                 statement.setLong(2, label.getId());
                 statement.execute();
             }
+            return newPost.getLabels();
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-        return newPost.getLabels();
+        finally {
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
     @Override
@@ -135,13 +147,17 @@ public class JDBCLabelRepositoryImpl implements LabelRepository {
             }
             statement.execute();
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        finally{
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
     public void detachAllLabels(Long postId) throws SQLException {
         try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(DETACH_ALL_LABELS)) {
             statement.setLong(1, postId);
             statement.execute();
+        }
+        finally {
             JDBCConnectionPool.getPoolContainer().retrieveConnection();
         }
     }

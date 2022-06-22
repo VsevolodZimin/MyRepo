@@ -20,7 +20,7 @@ public class JDBCPostRepositoryImpl implements PostRepository {
     @Override
     public List<PostEntity> findAll() throws SQLException {
         ArrayList<PostEntity> posts = new ArrayList<>();
-        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(GET_ALL_POSTS)){
+        try(PreparedStatement statement = JDBCConnectionPool.getPoolContainer().getConnection().prepareStatement(GET_ALL_POSTS)) {
             statement.execute();
             ResultSet result = statement.getResultSet();
             while (result.next()) {
@@ -29,12 +29,13 @@ public class JDBCPostRepositoryImpl implements PostRepository {
                         result.getString("content"),
                         (Date) result.getObject("created"),
                         (Date) result.getObject("updated"),
-                        null,
                         result.getLong("writer_id")));
             }
+            return posts;
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-        return posts;
+        finally {
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
 
@@ -50,15 +51,15 @@ public class JDBCPostRepositoryImpl implements PostRepository {
                         result.getString("content"),
                         (Date) result.getObject("created"),
                         (Date) result.getObject("updated"),
-                        null,
                         result.getLong("writer_id")
                 );
-                JDBCConnectionPool.getPoolContainer().retrieveConnection();
                 return post;
             }
+            return null;
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-    return null;
+        finally {
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
     @Override
@@ -70,10 +71,14 @@ public class JDBCPostRepositoryImpl implements PostRepository {
             statement.setObject(4, post.getUpdated());
             statement.setLong(5, post.getWriterId());
             statement.execute();
+            return post;
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-        return post;
+        finally {
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
+
+
 
     @Override
     public PostEntity update(PostEntity post) throws SQLException {
@@ -83,9 +88,12 @@ public class JDBCPostRepositoryImpl implements PostRepository {
             statement.setObject(3, post.getUpdated());
             statement.setLong(4, post.getId());
             statement.execute();
+            return post;
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-        return post;
+        finally{
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
+
     }
 
     @Override
@@ -94,7 +102,9 @@ public class JDBCPostRepositoryImpl implements PostRepository {
             statement.setLong(1, id);
             statement.execute();
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        finally{
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 
 
@@ -108,8 +118,10 @@ public class JDBCPostRepositoryImpl implements PostRepository {
             while (result.next()) {
                 posts.add(findById(result.getLong("id")));
             }
+            return posts;
         }
-        JDBCConnectionPool.getPoolContainer().retrieveConnection();
-        return posts;
+        finally {
+            JDBCConnectionPool.getPoolContainer().retrieveConnection();
+        }
     }
 }
