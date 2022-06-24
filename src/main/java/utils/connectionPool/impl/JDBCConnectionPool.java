@@ -68,10 +68,13 @@ public class JDBCConnectionPool implements ConnectionPool {
     // Проверяет уменьшилась ли нагрузка на пул. Если да, то неиспользуемые соединения будут закрываться и удаляться из пула,
     // приводя его к изначальному размеру.
     private void checkIfPoolShrinkable() throws SQLException {
-        if(currentCapacity > defaultCapacity && usedConnections <= defaultCapacity){
-            for(int i = 0; i < currentCapacity - defaultCapacity; i++){
-                connectionPool.get(0).close();
-                connectionPool.remove(0);
+
+        synchronized (this){
+            if(currentCapacity > defaultCapacity && usedConnections <= defaultCapacity){
+                for(int i = 0; i < currentCapacity - defaultCapacity; i++){
+                    connectionPool.get(0).close();
+                    connectionPool.remove(0);
+                }
             }
         }
     }
